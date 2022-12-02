@@ -63,30 +63,39 @@ int main(int argc, char **argv)
 
   Points points = inputformat::formatFileContentsToCGALPoints(inputFile);
 
-  Polygon_2 polygon;
+  // Polygon_2 polygon;
 
-  if (algorithm == "incremental")
+  // if (algorithm == "incremental")
+  // {
+  //   auto start = high_resolution_clock::now();
+  //   polygon = incrementalAlgorithm(points, edge_selection, "1a");
+  //   auto stop = high_resolution_clock::now();
+  //   auto duration = duration_cast<microseconds>(stop - start);
+  //   polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+  // }
+
+  // if (algorithm == "convex_hull")
+  // {
+  //   auto start = high_resolution_clock::now();
+  //   polygon = convex_hull_Algorithm(points, edge_selection);
+  //   auto stop = high_resolution_clock::now();
+  //   auto duration = duration_cast<microseconds>(stop - start);
+  //   polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+  // }
+
+  // if (algorithm == "onion")
+  // {
+  //   cout << "NOT IMPLEMENTED YET" << endl;
+  // }
+
+  if (algorithm == "local_search")
   {
-    auto start = high_resolution_clock::now();
-    polygon = incrementalAlgorithm(points, edge_selection, "1a");
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+    localSearch(points, MAX_PARAMETER, 0.1);
   }
 
-  if (algorithm == "convex_hull")
-  {
-    auto start = high_resolution_clock::now();
-    polygon = convex_hull_Algorithm(points, edge_selection);
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
-  }
+  
 
-  if (algorithm == "onion")
-  {
-    cout << "NOT IMPLEMENTED YET" << endl;
-  }
+
 
   return 0;
 }
