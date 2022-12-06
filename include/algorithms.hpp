@@ -21,3 +21,4 @@ Polygon_2 onion(Points points, int edge_selection);
 
 void localSearch(Points points, string parameter, double threshold);
 void simulatedAnnealing(Points points, string parameter);
+void antColony(Points points);

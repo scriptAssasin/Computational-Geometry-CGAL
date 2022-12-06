@@ -4,6 +4,7 @@ ADD_LIBRARY(LibsModule
     convexHullAlgorithm.cpp
     localSearch.cpp
     simulatedAnnealing.cpp
+    antColony.cpp
 )
 
 target_link_libraries(LibsModule ${CGAL_LIBS})
