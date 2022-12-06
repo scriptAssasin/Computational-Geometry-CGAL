@@ -92,10 +92,10 @@ int main(int argc, char **argv)
   {
     localSearch(points, MAX_PARAMETER, 0.1);
   }
+  if (algorithm == "simulated_annealing")
+  {
+    simulatedAnnealing(points, "local");
+  }
 
-  
-
-
-
-  return 0;
+    return 0;
 }

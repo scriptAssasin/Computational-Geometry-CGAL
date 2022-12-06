@@ -3,6 +3,7 @@ ADD_LIBRARY(LibsModule
     incrementalAlgorithm.cpp
     convexHullAlgorithm.cpp
     localSearch.cpp
+    simulatedAnnealing.cpp
 )
 
 target_link_libraries(LibsModule ${CGAL_LIBS})
