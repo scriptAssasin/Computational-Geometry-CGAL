@@ -96,6 +96,10 @@ int main(int argc, char **argv)
   {
     simulatedAnnealing(points, "local");
   }
+  if (algorithm == "ant_colony")
+  {
+    antColony(points);
+  }
 
     return 0;
 }
