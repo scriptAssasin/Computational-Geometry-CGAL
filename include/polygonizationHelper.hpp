@@ -40,3 +40,7 @@ vector<Point_2> sortPoints(vector<Point_2> points, string initialization);
 int insert_edge_with_criteria(Polygon_2&, Points&, int);
 
 void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int initialization, int time);
+
+Polygon_2 get_convex_hull_polygon(Points vertices);
+
+void swapTwoPoints(Polygon_2 &polygon, int indexOfFirstPoint);
