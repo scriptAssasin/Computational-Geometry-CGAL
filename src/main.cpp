@@ -94,7 +94,7 @@ int main(int argc, char **argv)
   }
   if (algorithm == "simulated_annealing")
   {
-    simulatedAnnealing(points, "local");
+    simulatedAnnealing(points, "local", true);
   }
   if (algorithm == "ant_colony")
   {

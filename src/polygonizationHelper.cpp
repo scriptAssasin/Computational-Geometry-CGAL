@@ -525,3 +525,32 @@ void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int 
     cout << "construction time: " << time << endl;
         
 }
+
+Polygon_2 get_convex_hull_polygon(Points vertices)
+{
+    Points points;
+    Polygon_2 convexHull;
+    CGAL::convex_hull_2(vertices.begin(), vertices.end(), back_inserter(points));
+    for (auto it = points.begin(); it != points.end(); it++)
+        convexHull.push_back(*it);
+
+    return convexHull;
+}
+
+void swapTwoPoints(Polygon_2 &polygon, int indexOfFirstPoint)
+{
+
+    // Let p, q, r, s be four consecutive points in polygon. We remove point q and place it before s
+    // indexOfFirstPoint points to q
+
+    Polygon_2::Vertex_iterator vertex = polygon.begin() + indexOfFirstPoint;
+    Point_2 q = Point_2(*vertex);
+
+    // remove q point
+    polygon.erase(vertex);
+
+    vertex = polygon.begin() + indexOfFirstPoint + 1;
+
+    // add point q after r (or before s)
+    polygon.insert(vertex, q);
+}
