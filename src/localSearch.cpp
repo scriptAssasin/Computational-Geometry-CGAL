@@ -1,45 +1,19 @@
 #include <iostream>
 #include <climits>
 #include <tuple>
+#include <math.h>
 #include "../include/algorithms.hpp"
 #include "../include/polygonizationHelper.hpp"
 
-void printtVector(vector<Point_2> vec)
+// function that performs move step of V,e in local search
+void move(Polygon_2 &starting_polygon, Points &polygon_line, Segment_2 edge)
 {
-    for (int i = 0; i < vec.size(); i++)
-        cout << vec[i].x() << " " << vec[i].y() << endl;
-}
-
-bool is_visible_path(Polygon_2 &polygon, Points path, Segment_2 edge)
-{
-    for (int i = 0; i < path.size(); i++)
-    {
-        if (!is_visible(polygon, path[i], edge))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-Polygon_2 move(Polygon_2 &starting_polygon, Points &polygon_line, Segment_2 edge)
-{
-
-    Polygon_2 final_polygon(starting_polygon), temp;
-
-    // cout << "----------" << endl;
-    // printtVector(polygon_line);
-    // cout << "----------" << endl;
-    // for (vertexit vertit = final_polygon.vertices_begin(); vertit != final_polygon.vertices_end(); ++vertit)
-    // {
-    //     cout << *vertit << endl;
-    // }
-    // cout << "-------------------" << endl;
 
     vertexit starting_point_iterator, ending_point_iterator;
+    vertexit edge_index;
 
-    for (vertexit vertit = final_polygon.vertices_begin(); vertit != final_polygon.vertices_end(); ++vertit)
+    // calculating iterators
+    for (vertexit vertit = starting_polygon.vertices_begin(); vertit != starting_polygon.vertices_end(); ++vertit)
     {
         if (*vertit == polygon_line[0])
         {
@@ -47,45 +21,37 @@ Polygon_2 move(Polygon_2 &starting_polygon, Points &polygon_line, Segment_2 edge
         }
         if (*vertit == polygon_line[polygon_line.size() - 1])
         {
-            ending_point_iterator = vertit;
+            ending_point_iterator = next(vertit);
         }
     }
 
-    cout << *starting_point_iterator << " - " << *ending_point_iterator << endl;
-
-    if ((starting_point_iterator == final_polygon.vertices_end() - 1))
+    if ((starting_point_iterator == starting_polygon.vertices_end() - 1))
     {
     }
-    else if (starting_point_iterator == final_polygon.vertices_end() - 2)
+    else if (starting_point_iterator == starting_polygon.vertices_end() - 2)
     {
     }
     else
     {
-        final_polygon.erase(starting_point_iterator, ending_point_iterator);
-        vertexit edge_index;
+        // swapping is performed by removing V and inserting it to e
+        starting_polygon.erase(starting_point_iterator, ending_point_iterator);
 
-        for (vertexit vertit = final_polygon.vertices_begin(); vertit != final_polygon.vertices_end(); ++vertit)
+        // recalculating iterators after swap
+        for (vertexit vertit = starting_polygon.vertices_begin(); vertit != starting_polygon.vertices_end(); ++vertit)
         {
-            if (*vertit == polygon_line[0])
-            {
-                starting_point_iterator = vertit;
-            }
-            if (*vertit == polygon_line[polygon_line.size() - 1])
-            {
-                ending_point_iterator = vertit;
-            }
             if (*vertit == edge[0])
             {
                 edge_index = vertit;
             }
         }
 
-        final_polygon.insert(edge_index + 1, starting_point_iterator, ending_point_iterator);
+        starting_polygon.insert(edge_index, polygon_line.begin(), polygon_line.end());
     }
 
-    return final_polygon;
+    return;
 }
 
+// function that creates k-sequences of vertices (polygon line)
 vector<Points> calculate_polygon_lines(Polygon_2 &polygon)
 {
 
@@ -94,8 +60,8 @@ vector<Points> calculate_polygon_lines(Polygon_2 &polygon)
     for (vertexit vertit = polygon.vertices_begin(); vertit != polygon.vertices_end(); ++vertit)
     {
         Points polygon_line;
-        // vertexit temp = vertit;
 
+        // edge cases
         if (vertit == prev(prev(polygon.vertices_end())))
         {
             polygon_line.push_back(*vertit);
@@ -115,12 +81,7 @@ vector<Points> calculate_polygon_lines(Polygon_2 &polygon)
             polygon_line.push_back(*(vertit + 2));
         }
 
-        // cout << "------------------------" << endl;
-        // printtVector(polygon_line);
-        // cout << "------------------------" << endl;
-
         polygon_lines.push_back(polygon_line);
-        // cout << *vertit << endl;
     }
 
     return polygon_lines;
@@ -128,76 +89,132 @@ vector<Points> calculate_polygon_lines(Polygon_2 &polygon)
 
 const int k = 3; // TODO: move it inside localSearch
 
-void localSearch(Points points, string parameter, double threshold)
+void remove_duplicates(Polygon_2 &pol)
 {
-    cout << "HELLO WORLD LOCAL SEARCH!" << endl;
+    for (vertexit vit1 = pol.vertices_begin(); vit1 != pol.vertices_end(); vit1++)
+    {
+        for (vertexit vit2 = pol.vertices_begin(); vit2 != pol.vertices_end(); vit2++)
+        {
+            if ((*vit1 == *vit2) && (vit1 != vit2) && (!((vit1 == pol.vertices_begin()) && (vit2 == pol.vertices_end()))) &&
+                (!((vit2 == pol.vertices_begin()) && (vit1 == pol.vertices_end()))))
+            {
+                pol.erase(vit2, next(vit2));
+            }
+        }
+    }
+}
 
+Polygon_2 localSearch(Points points, string parameter, double threshold, string option)
+{
+
+    // greedy solution
     Polygon_2 initial_state = convex_hull_Algorithm(points, 3);
 
-    /** TODO: TO DELETE STARTS HERE **/
+    // error checking
+    if (!initial_state.is_simple())
+    {
+        return initial_state;
+    }
 
-    // /** PRINT POLYGON VERTICES **/
-    // cout << "-------------------" << endl;
-    // for (vertexit vertit = initial_state.vertices_begin(); vertit != initial_state.vertices_end(); ++vertit)
-    // {
-    //     cout << *vertit << endl;
-    // }
-    // cout << "-------------------" << endl;
-    // /** PRINT POLYGON EDGES **/
-    // for (edgeit iter = initial_state.edges_begin(); iter != initial_state.edges_end(); ++iter)
-    // {
-    //     cout << *iter << endl;
-    // }
+    // error checking
+    if (initial_state.is_empty())
+    {
+        return initial_state;
+    }
 
-    // cout << "-------------------" << endl;
-
-    /** TODO: TO DELETE ENDS HERE **/
-
+    // traverse edges of polygon in random order
     Polygon_2 initial_state_random_order(initial_state);
 
     std::random_shuffle(initial_state_random_order.begin(), initial_state_random_order.end());
 
-    // for (vertexit it = initial_state.begin(); it != initial_state.end(); ++it)
-    //     std::cout << ' ' << *it << endl;
-    double max_area = FLT_MIN, current_area, diff = FLT_MAX;
+    int max_area = (int)initial_state.area(), current_area, diff = threshold;
+    int min_area = (int)initial_state.area();
+
+    Polygon_2 current_polygon(initial_state);
+    int counter = 0;
+    Polygon_2 old_polygon(initial_state);
+    Polygon_2 selected_polygon(initial_state);
+
+    const int max_tries = 20;
+
     while (diff >= threshold)
     {
-        Polygon_2 current_polygon(initial_state); // TODO: integrate with swap
+        counter++;
 
+        // loop edges
         for (edgeit it = initial_state_random_order.edges_begin(); it != initial_state_random_order.edges_end(); ++it)
         {
-            // std::cout << ' ' << *it << endl;
-
-            // vector<tuple<Segment_2, Points>> swaps;
+            // update polygon with changes
+            current_polygon = selected_polygon;
+            old_polygon = current_polygon;
             vector<Points> polygon_lines = calculate_polygon_lines(current_polygon);
 
-            // for (vertexit vertit = initial_state.vertices_begin(); vertit != initial_state.vertices_end(); ++vertit)
-            // {
-            //     // swap()... TODO: implement swap function. Swap returns new Polygon
-            // }
-
+            bool flag = false;
             for (int i = 0; i < polygon_lines.size(); i++)
             {
-                Polygon_2 temp_polygon;
+                current_polygon = old_polygon;
+
                 Points polygon_line = polygon_lines[i];
+                Segment_2 e = *it;
 
-                cout << "BEFORE ENTERING IS VISIBLE PATH" << endl;
-
-                temp_polygon = move(current_polygon, polygon_line, *it);
-
-                if (temp_polygon.area() > max_area)
+                // we don want polygon lines to contain edge e
+                for (int j = 0; j <= polygon_line.size(); j++)
                 {
-                    if (!temp_polygon.is_simple())
+                    if (polygon_line[j] == e[0] || polygon_line[j] == e[1])
                     {
-                        cout << "OLD AREA: " << current_polygon.area() << " - NEW AREA: " << temp_polygon.area() << endl;
-                        //     cout << "BACKTRACKING TO OPTIMIZE AREA!" << endl;
+                        flag = true;
                     }
-                    // current_polygon = temp_polygon;
+                }
+
+                if (flag)
+                {
+                    continue;
+                }
+
+                // perform move step
+                move(current_polygon, polygon_line, *it);
+
+                // check for visibilty
+                if (!current_polygon.is_simple())
+                {
+                    continue;
+                }
+
+                current_area = (int)current_polygon.area();
+                // error checking
+                if (current_area < 0)
+                {
+                    continue;
+                }
+
+                // maximize area
+                if (option == "max")
+                {
+                    if (current_area > max_area)
+                    {
+                        diff = current_area - max_area;
+                        max_area = current_area;
+                        selected_polygon = current_polygon;
+                    }
+                }
+
+                // minimize area
+                else
+                {
+                    if (current_area < max_area)
+                    {
+                        diff = current_area - max_area;
+                        min_area = current_area;
+                        selected_polygon = current_polygon;
+                    }
                 }
             }
         }
 
-        cout << "Is Simple??? " << current_polygon.is_simple() << endl;
-        
+        if (counter == max_tries)
+        {
+            diff = current_area - current_area;
+        }
     }
+    return selected_polygon;
 }

@@ -79,22 +79,17 @@ void getConvexHullPolygonFromPoints(const Points &vertices, Polygon_2 &convexHul
         convexHullPolygon.push_back(*it);
 }
 
-void swapPoints(Polygon_2 &polygon, int indexOfFirstPoint)
+void swapPoints(Polygon_2 &polygon, int startingPoint)
 {
+    vertexit vert = polygon.begin() + startingPoint;
+    Point_2 q = Point_2(*vert);
 
-    // Let p, q, r, s be four consecutive points in polygon. We remove point q and place it before s
-    // indexOfFirstPoint points to q
+    polygon.erase(vert);
 
-    Polygon_2::Vertex_iterator vertex = polygon.begin() + indexOfFirstPoint;
-    Point_2 q = Point_2(*vertex);
+    vert = polygon.begin() + startingPoint;
+    vert+=1;
 
-    // remove q point
-    polygon.erase(vertex);
-
-    vertex = polygon.begin() + indexOfFirstPoint + 1;
-
-    // add point q after r (or before s)
-    polygon.insert(vertex, q);
+    polygon.insert(vert, q);
 }
 
 bool checkIntersections(Polygon_2 &polygon, int randomPointIndex, Point_2 p, Point_2 q, Point_2 r, Point_2 s, Points pointsInBox)
