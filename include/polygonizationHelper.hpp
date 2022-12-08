@@ -10,6 +10,10 @@
 #include <climits>
 #include <vector>
 #include <boost/optional/optional_io.hpp>
+#include <CGAL/Search_traits_2.h>
+#include <CGAL/Kd_tree.h>
+#include <CGAL/Fuzzy_iso_box.h>
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point_2;
 typedef CGAL::Polygon_2<K> Polygon_2;
@@ -20,6 +24,10 @@ typedef std::vector<Segment_2>::iterator sveciterator;
 typedef std::vector<Point_2> Points;
 typedef Polygon_2::Edge_const_iterator edgeit;
 typedef Polygon_2::Vertex_iterator vertexit;
+typedef CGAL::Vector_3<K> Vector_3;
+typedef CGAL::Search_traits_2<K> Traits;
+typedef CGAL::Kd_tree<Traits> Tree;
+typedef CGAL::Fuzzy_iso_box<Traits> Fuzzy_iso_box;
 
 using namespace std;
 
@@ -43,4 +51,4 @@ void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int 
 
 Polygon_2 get_convex_hull_polygon(Points vertices);
 
-void swapTwoPoints(Polygon_2 &polygon, int indexOfFirstPoint);
+void swapPoints(Polygon_2 &polygon, int indexOfFirstPoint);
