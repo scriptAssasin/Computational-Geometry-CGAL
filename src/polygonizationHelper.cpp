@@ -534,62 +534,21 @@ void swapPoints(Polygon_2 &polygon, int startingPoint)
     polygon.insert(vert, q);
 }
 
-int triangleOrientation(Point_2 &a, Point_2 &b, Point_2 &c)
+int triangleOrientation(Point_2 a, Point_2 b, Point_2 c)
 {
-    int orientation = (b.y() - a.y()) * (c.x() - b.x()) - (b.x() - a.x()) * (c.y() - b.y());
+    int pointsBandACoordinateXdifference = b.x() - a.x();
+    int pointsBandACoordinateYdifference = b.y() - a.y();
+    int pointsBandCCoordinateXdifference = c.x() - b.x();
+    int pointsBandCCoordinateYdifference = c.y() - b.y();
+
+    int orientation = pointsBandACoordinateYdifference * pointsBandCCoordinateXdifference - pointsBandACoordinateXdifference * pointsBandCCoordinateYdifference;
     if (orientation == 0)
         return 0;
-    return orientation < 0 ? 1 : -1; // 1 for counter-clockwise, -1 for clockwise
+    // 1 for counter-clockwise, -1 for clockwise
+    return orientation < 0 ? 1 : -1;
 }
 
-int maxCoordinateX(Point_2 &p, Point_2 &q, Point_2 &r, Point_2 &s)
-{
-    int max = p.x();
-    if (q.x() > max)
-        max = q.x();
-    if (r.x() > max)
-        max = r.x();
-    if (s.x() > max)
-        max = s.x();
-    return max;
-}
-
-int maxCoordinateY(Point_2 &p, Point_2 &q, Point_2 &r, Point_2 &s)
-{
-    int max = p.y();
-    if (q.y() > max)
-        max = q.y();
-    if (r.y() > max)
-        max = r.y();
-    if (s.y() > max)
-        max = s.y();
-    return max;
-}
-
-int minCoordinateX(Point_2 &p, Point_2 &q, Point_2 &r, Point_2 &s)
-{
-    int min = p.x();
-    if (q.x() < min)
-        min = q.x();
-    if (r.x() < min)
-        min = r.x();
-    if (s.x() < min)
-        min = s.x();
-    return min;
-}
-
-int minCoordinateY(Point_2 &p, Point_2 &q, Point_2 &r, Point_2 &s)
-{
-    int min = p.y();
-    if (q.y() < min)
-        min = q.y();
-    if (r.y() < min)
-        min = r.y();
-    if (s.y() < min)
-        min = s.y();
-    return min;
-}
-
+// helper function that gets list of Points and return the minimum or maximum based on x or y depends on its arguments
 template <class T>
 int minimum_or_maximum_coordinates(std::initializer_list<T> list, bool max = false, bool x = true)
 {
@@ -621,14 +580,14 @@ int minimum_or_maximum_coordinates(std::initializer_list<T> list, bool max = fal
             {
                 if (point.y() > result)
                 {
-                    result = point.x();
+                    result = point.y();
                 }
             }
             else
             {
                 if (point.y() < result)
                 {
-                    result = point.x();
+                    result = point.y();
                 }
             }
         }
@@ -639,100 +598,73 @@ int minimum_or_maximum_coordinates(std::initializer_list<T> list, bool max = fal
 
 Point_2 get_minimum_point(Point_2 a, Point_2 b, Point_2 c, Point_2 d)
 {
-    int minX = minimum_or_maximum_coordinates({a, b, c, d}, false);
-    int minY = minimum_or_maximum_coordinates({a, b, c, d}, false, false);
+    // find minimum x,y using our helper function
+    int minimumXCoordinate = minimum_or_maximum_coordinates({a, b, c, d}, false);
+    int minimumYCoordinate = minimum_or_maximum_coordinates({a, b, c, d}, false, false);
 
-    return Point_2(minX, minY);
+    return Point_2(minimumXCoordinate, minimumYCoordinate);
 }
 
 Point_2 get_maximum_point(Point_2 a, Point_2 b, Point_2 c, Point_2 d)
 {
-    int maxX = minimum_or_maximum_coordinates({a, b, c, d}, true);
-    int maxY = minimum_or_maximum_coordinates({a, b, c, d}, true, false);
+    // find maximum x,y using our helper function
+    int maximumXCoordinate = minimum_or_maximum_coordinates({a, b, c, d}, true);
+    int maximumYCoordinate = minimum_or_maximum_coordinates({a, b, c, d}, true, false);
 
-    return Point_2(maxX, maxY);
+    return Point_2(maximumXCoordinate, maximumYCoordinate);
 }
 
 Points get_points_in_box(Tree &kdTree, Point_2 a, Point_2 b, Point_2 c, Point_2 d)
 {
-    // find max and min coordianates to form the search box
-    int maxX = maxCoordinateX(a, b, c, d);
-    int minX = minCoordinateX(a, b, c, d);
-    int maxY = maxCoordinateY(a, b, c, d);
-    int minY = minCoordinateY(a, b, c, d);
-
     // find the points of polygon in the box
     Points pointsInBox;
-    Fuzzy_iso_box searchBox(Point_2(minX, minY), Point_2(maxX, maxY));
-    kdTree.search(std::back_inserter(pointsInBox), searchBox);
+    Fuzzy_iso_box searchBox(get_minimum_point(a, b, c, d), get_maximum_point(a, b, c, d));
+    kdTree.search(back_inserter(pointsInBox), searchBox);
 
     return pointsInBox;
 }
 
-bool checkIntersections(Polygon_2 &polygon, int randomPointIndex, Point_2 p, Point_2 q, Point_2 r, Point_2 s, Points pointsInBox)
+bool checkIntersections(Polygon_2 &polygon, int randomPoint, Point_2 p, Point_2 q, Point_2 r, Point_2 s, Points pointsInBox)
 {
-    // new lines
-    Segment_2 line1 = Segment_2(p, r);
-    Segment_2 line2 = Segment_2(q, s);
-
-    // checks if the line before p intersects with line q s
-    Point_2 t;
-    if (randomPointIndex - 2 >= 0)
-        t = polygon[randomPointIndex - 2];
-    else
-        t = polygon[polygon.size() - 1]; // if p is the first point in polygon
-    Segment_2 lineT = Segment_2(t, p);
-    if (CGAL::do_intersect(line2, lineT))
+    Segment_2 linePR = Segment_2(p, r), lineQS = Segment_2(q, s), lineTemp;
+    Point_2 temp;
+    Point_2 polygon_last_point = polygon[polygon.size() - 1], polygon_first_point = polygon[0];
+    // checks if the line which is before p intersects with line qs
+    temp = randomPoint - 2 >= 0 ? polygon[randomPoint - 2] : polygon_last_point;
+    lineTemp = Segment_2(temp, p);
+    if (CGAL::do_intersect(lineQS, lineTemp))
         return true;
-
-    // checks if the line after s intersects with line p r
-    if (randomPointIndex + 3 < polygon.size())
-        t = polygon[randomPointIndex + 3];
-    else
-        t = polygon[0]; // if s is the last point in polygon
-    lineT = Segment_2(s, t);
-    if (CGAL::do_intersect(line1, lineT))
+    // checks if the line which is after s intersects with line pr
+    temp = randomPoint + 3 < polygon.size() ? polygon[randomPoint + 3] : polygon_first_point;
+    lineTemp = Segment_2(s, temp);
+    if (CGAL::do_intersect(linePR, lineTemp))
         return true;
-
     // if new lines intersect each other try again
-    if (CGAL::do_intersect(line1, line2))
+    if (CGAL::do_intersect(linePR, lineQS))
         return true;
-    bool validPointSwap;
-
     // check if lines from points in box intersect with new lines
-    for (Polygon_2::Vertex_iterator vertex = polygon.begin(); vertex != polygon.end(); vertex++)
-    {
-
-        // validPointSwap = true;
-
-        for (std::vector<Point_2>::iterator point = pointsInBox.begin(); point != pointsInBox.end(); point++)
+    for (vertexit vertex_iterator = polygon.begin(); vertex_iterator != polygon.end(); vertex_iterator++)
+        for (pveciterator point_iterator = pointsInBox.begin(); point_iterator != pointsInBox.end(); point_iterator++)
         {
-            if (*point == *vertex)
+            if (*point_iterator == *vertex_iterator)
             {
-                Point_2 a = *vertex; // point in box
-                --vertex;
-                Point_2 b = *vertex; // previous point
-                ++vertex;
-                ++vertex;
-                Point_2 c = *vertex; // next point
-                --vertex;
+                // Call Point_2 copy constructor
+                Point_2 point_in_box(*vertex_iterator), previous_point(*(vertex_iterator - 1)), next_point(*(vertex_iterator + 1));
 
-                if (a == q || b == q || c == q || a == r || b == r || c == r)
+                if (point_in_box == q || point_in_box == r)
                     continue;
-
+                if (previous_point == q || next_point == q || previous_point == r || next_point == r)
+                    continue;
+                if (next_point == q || next_point == r)
+                    continue;
                 // the two lines from point in box
-                Segment_2 lineA = Segment_2(b, a);
-                Segment_2 lineB = Segment_2(a, c);
-
-                pointsInBox.erase(point);
-
-                if (CGAL::do_intersect(line1, lineA) || CGAL::do_intersect(line1, lineB) || CGAL::do_intersect(line2, lineA) || CGAL::do_intersect(line2, lineB))
+                Segment_2 linePreviousPointToCurrentPoint = Segment_2(previous_point, point_in_box), lineCurrentPointToNextPoint = Segment_2(point_in_box, next_point);
+                if (CGAL::do_intersect(linePR, linePreviousPointToCurrentPoint) || CGAL::do_intersect(linePR, lineCurrentPointToNextPoint) || CGAL::do_intersect(lineQS, linePreviousPointToCurrentPoint) || CGAL::do_intersect(lineQS, lineCurrentPointToNextPoint))
                     return true;
-
+                // remove point from pointsInBox
+                pointsInBox.erase(point_iterator);
                 break;
             }
         }
-    }
-
     return false;
 }

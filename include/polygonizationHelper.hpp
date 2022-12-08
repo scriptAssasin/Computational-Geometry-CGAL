@@ -52,3 +52,9 @@ void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int 
 Polygon_2 get_convex_hull_polygon(Points vertices);
 
 void swapPoints(Polygon_2 &polygon, int indexOfFirstPoint);
+
+int triangleOrientation(Point_2 a, Point_2 b, Point_2 c);
+
+Points get_points_in_box(Tree &kdTree, Point_2 a, Point_2 b, Point_2 c, Point_2 d);
+
+bool checkIntersections(Polygon_2 &polygon, int randomPointIndex, Point_2 p, Point_2 q, Point_2 r, Point_2 s, Points pointsInBox);
