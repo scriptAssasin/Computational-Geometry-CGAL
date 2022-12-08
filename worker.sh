@@ -48,5 +48,5 @@ cd "${SCRIPT_DIR}/build"
 # ./to_polygon -i ../instances/instances/data/images/london-0000010.instance -o results-euro-night-0000015.txt -algorithm local_search -edge_selection 3 -initialization 1a
 # ./to_polygon -i ../instances/instances/data/images/london-0000010.instance -o results-euro-night-0000015.txt -algorithm simulated_annealing -edge_selection 3 -initialization 1a
 # ./to_polygon -i ../instances/instances/data/images/london-0000010.instance -o results-euro-night-0000015.txt -algorithm local_search -edge_selection 3 -initialization 1a
-./to_polygon -i ../instances/instances/data/images/london-0000010.instance -o results-euro-night-0000015.txt -algorithm simulated_annealing -edge_selection 3 -initialization 1a
-
+# ./to_polygon -i ../instances/instances/data/images/london-0000015.instance -o results-euro-night-0000080.txt -algorithm local_search -edge_selection 3 -initialization 1a
+./to_polygon -i ../instances/instances/data/images/london-0000100.instance -o results-euro-night-0000015.txt -algorithm simulated_annealing -edge_selection 3 -initialization 1a

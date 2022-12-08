@@ -90,8 +90,13 @@ int main(int argc, char **argv)
 
   if (algorithm == "local_search")
   {
-    localSearch(points, MAX_PARAMETER, 0.1);
+    auto start = high_resolution_clock::now();
+    polygon = localSearch(points, MAX_PARAMETER, 2.0, "max");
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
   }
+
   if (algorithm == "simulated_annealing")
   {
     simulatedAnnealing(points, "local", false, 30000);

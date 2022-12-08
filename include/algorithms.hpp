@@ -19,6 +19,6 @@ Polygon_2 incrementalAlgorithm(Points points, int edge_selection, string initial
 Polygon_2 convex_hull_Algorithm(Points points, int edge_selection);
 Polygon_2 onion(Points points, int edge_selection);
 
-void localSearch(Points points, string parameter, double threshold);
+Polygon_2 localSearch(Points points, string parameter, double threshold, string option);
 void simulatedAnnealing(Points points, string parameter, bool isMax, int L);
 void antColony(Points points);
