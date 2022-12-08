@@ -63,30 +63,30 @@ int main(int argc, char **argv)
 
   Points points = inputformat::formatFileContentsToCGALPoints(inputFile);
 
-  // Polygon_2 polygon;
+  Polygon_2 polygon;
 
-  // if (algorithm == "incremental")
-  // {
-  //   auto start = high_resolution_clock::now();
-  //   polygon = incrementalAlgorithm(points, edge_selection, "1a");
-  //   auto stop = high_resolution_clock::now();
-  //   auto duration = duration_cast<microseconds>(stop - start);
-  //   polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
-  // }
+  if (algorithm == "incremental")
+  {
+    auto start = high_resolution_clock::now();
+    polygon = incrementalAlgorithm(points, edge_selection, "1a");
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+  }
 
-  // if (algorithm == "convex_hull")
-  // {
-  //   auto start = high_resolution_clock::now();
-  //   polygon = convex_hull_Algorithm(points, edge_selection);
-  //   auto stop = high_resolution_clock::now();
-  //   auto duration = duration_cast<microseconds>(stop - start);
-  //   polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
-  // }
+  if (algorithm == "convex_hull")
+  {
+    auto start = high_resolution_clock::now();
+    polygon = convex_hull_Algorithm(points, edge_selection);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+  }
 
-  // if (algorithm == "onion")
-  // {
-  //   cout << "NOT IMPLEMENTED YET" << endl;
-  // }
+  if (algorithm == "onion")
+  {
+    cout << "NOT IMPLEMENTED YET" << endl;
+  }
 
   if (algorithm == "local_search")
   {
@@ -94,12 +94,12 @@ int main(int argc, char **argv)
   }
   if (algorithm == "simulated_annealing")
   {
-    simulatedAnnealing(points, "local", true);
+    simulatedAnnealing(points, "local", false, 30000);
   }
   if (algorithm == "ant_colony")
   {
     antColony(points);
   }
 
-    return 0;
+  return 0;
 }
