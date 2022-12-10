@@ -51,7 +51,9 @@ void polygon_print(Polygon_2 polygon, string algorithm, string option, int time,
 
 Polygon_2 get_convex_hull_polygon(Points vertices);
 
-void swapPoints(Polygon_2 &polygon, int indexOfFirstPoint);
+Polygon_2 swapPoints(Polygon_2 polygon, int startingPoint);
+
+Polygon_2 pointPositionChange(Polygon_2 polygon, int &pointIndex, int &newPos);
 
 int triangleOrientation(Point_2 a, Point_2 b, Point_2 c);
 

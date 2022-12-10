@@ -526,17 +526,34 @@ Polygon_2 get_convex_hull_polygon(Points vertices)
     return convexHull;
 }
 
-void swapPoints(Polygon_2 &polygon, int startingPoint)
+Polygon_2 swapPoints(Polygon_2 polygon, int startingPoint)
 {
-    vertexit vert = polygon.begin() + startingPoint;
+    Polygon_2 temp_polygon(polygon);
+    vertexit vert = temp_polygon.begin() + startingPoint;
     Point_2 q(*vert);
 
-    polygon.erase(vert);
+    temp_polygon.erase(vert);
 
-    vert = polygon.begin() + startingPoint;
+    vert = temp_polygon.begin() + startingPoint;
     vert += 1;
 
-    polygon.insert(vert, q);
+    temp_polygon.insert(vert, q);
+
+    return temp_polygon;
+}
+
+Polygon_2 pointPositionChange(Polygon_2 polygon, int &pointIndex, int &newPos)
+{
+    Polygon_2 temp_polygon(polygon);
+    Point_2 q = Point_2(*(temp_polygon.begin() + pointIndex));
+
+    // remove point q from polygon
+    temp_polygon.erase(temp_polygon.begin() + pointIndex);
+
+    // insert q between s and t
+    temp_polygon.insert(temp_polygon.begin() + newPos, q);
+
+    return temp_polygon;
 }
 
 int triangleOrientation(Point_2 a, Point_2 b, Point_2 c)

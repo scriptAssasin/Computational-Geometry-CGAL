@@ -6,7 +6,8 @@
 #include "../include/algorithms.hpp"
 #include "../include/polygonizationHelper.hpp"
 
-Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &startingPoint, bool isMax);
+Polygon_2 localTransitionStep(Polygon_2 polygon, double &alteredArea, int &startingPoint, bool isMax);
+Polygon_2 globalTransitionStep(Polygon_2 polygon, double &changeOfPolygonArea, int &pointIndex, int &newPos, bool isMax);
 
 Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L, double &initial_area)
 {
@@ -23,16 +24,19 @@ Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L,
     double energy = 0, temperature = 1, DE, R = rand() / (RAND_MAX);
     double areaDifference, newEnergy;
 
-
     // calculation -> Initial Energy
     energy = points.size() * areaOfPolygon / convexHullArea;
-
 
     for (int i = 0; i < L; i++)
     {
         int startingPoint;
+        // case of global
+        int newPos;
 
-        polygon = localTransitionStep(polygon, areaDifference, startingPoint, isMax);
+        if (isLocal)
+            polygon = localTransitionStep(polygon, areaDifference, startingPoint, isMax);
+        else
+            polygon = globalTransitionStep(polygon, areaDifference, startingPoint, newPos, isMax);
         // increased Area
         areaOfPolygon += areaDifference;
 
@@ -51,7 +55,8 @@ Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L,
             {
                 // if step is not acceptable, undo the step. Based on global.pdf "Check validity. If not valid goto 4."
                 if (isLocal)
-                    swapPoints(polygon, startingPoint);
+                    polygon = swapPoints(polygon, startingPoint);
+
                 // calculate new area
                 areaOfPolygon -= areaDifference;
 
@@ -69,7 +74,7 @@ Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L,
             {
                 // if step is not acceptable, undo the step. Based on global.pdf "Check validity.
                 if (isLocal)
-                    swapPoints(polygon, startingPoint);
+                    polygon = swapPoints(polygon, startingPoint);
                 // calculate new area
                 areaOfPolygon -= areaDifference;
                 // If not valid goto 4."
@@ -87,7 +92,7 @@ Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L,
     return polygon;
 }
 
-Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &startingPoint, bool isMax)
+Polygon_2 localTransitionStep(Polygon_2 polygon, double &alteredArea, int &startingPoint, bool isMax)
 {
     // temp_polygon uses copy constructor to be initialized as polygon
     Polygon_2 temp_polygon(polygon);
@@ -113,7 +118,7 @@ Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &star
         if (hasIntersect)
             continue;
         // swap points
-        swapPoints(temp_polygon, randomPoint);
+        polygon = swapPoints(temp_polygon, randomPoint);
         // different cases for minimization and maximization
         if (isMax)
         {
@@ -140,6 +145,65 @@ Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &star
         // Update argumnets passed by reference
         alteredArea = addedArea - deletedArea;
         startingPoint = randomPoint;
+
+        break;
+    }
+
+    return polygon;
+}
+
+Polygon_2 globalTransitionStep(Polygon_2 polygon, double &changeOfPolygonArea, int &pointIndex, int &newPos, bool isMax)
+{
+    // cout << "inside global" << endl;
+    // temp_polygon uses copy constructor to be initialized as polygon
+    Polygon_2 temp_polygon(polygon);
+
+    for (;;)
+    {
+        int randomPoint = rand() % (polygon.size() - 1);
+        pveciterator polygon_start = polygon.begin();
+
+        // cout << "1 - temp polygon area: " << temp_polygon.area() << " polygon area: " << polygon.area() << endl;     
+        // pick a point to swap and a new place
+        pointIndex = 1 + (rand() % (polygon.size() - 1));
+        newPos = 1 + (rand() % (polygon.size() - 1));
+
+        if (abs(pointIndex - newPos) < 2)
+            continue;
+
+        Point_2 q = *(polygon_start + pointIndex), r = *(polygon_start + pointIndex - 1), p = *(polygon_start + pointIndex + 1), s = *(polygon_start + newPos - 1), t = *(polygon_start + newPos);
+
+        if (pointIndex < newPos)
+            newPos--;
+
+        // make the change
+        temp_polygon = pointPositionChange(temp_polygon, pointIndex, newPos);
+
+        // if new polygon is not simple -> return the old one not valid change
+        if (temp_polygon.is_simple() == false)
+            return polygon;
+        else
+        {
+            if (isMax)
+            {
+                if (temp_polygon.area() >= polygon.area())
+                    polygon = temp_polygon;
+                else
+                    return polygon;
+            }
+            else
+            {
+                if (temp_polygon.area() <= polygon.area())
+                    polygon = temp_polygon;
+                else
+                    return polygon;
+            }
+
+            // cout << "5 - temp polygon area: " << temp_polygon.area() << " polygon area: " << polygon.area() << endl;
+        }
+
+        // area change
+        changeOfPolygonArea = CGAL::area(s, q, t) - CGAL::area(r, q, p);
 
         break;
     }
