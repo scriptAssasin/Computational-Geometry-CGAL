@@ -8,5 +8,5 @@ ADD_LIBRARY(LibsModule
 )
 
 target_link_libraries(LibsModule ${CGAL_LIBS})
-ADD_EXECUTABLE(to_polygon main.cpp)
-target_link_libraries(to_polygon LibsModule)
+ADD_EXECUTABLE(optimal_polygon main.cpp)
+target_link_libraries(optimal_polygon LibsModule)

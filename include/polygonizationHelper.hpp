@@ -47,7 +47,7 @@ vector<Point_2> sortPoints(vector<Point_2> points, string initialization);
 
 int insert_edge_with_criteria(Polygon_2&, Points&, int);
 
-void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int initialization, int time);
+void polygon_print(Polygon_2 polygon, string algorithm, string option, int time, double initial_area, Points points, int convex_hull_area, string filename);
 
 Polygon_2 get_convex_hull_polygon(Points vertices);
 
@@ -58,3 +58,7 @@ int triangleOrientation(Point_2 a, Point_2 b, Point_2 c);
 Points get_points_in_box(Tree &kdTree, Point_2 a, Point_2 b, Point_2 c, Point_2 d);
 
 bool checkIntersections(Polygon_2 &polygon, int randomPointIndex, Point_2 p, Point_2 q, Point_2 r, Point_2 s, Points pointsInBox);
+
+vector<Points> calculate_polygon_lines(Polygon_2 &polygon);
+
+void move(Polygon_2 &starting_polygon, Points &polygon_line, Segment_2 edge);

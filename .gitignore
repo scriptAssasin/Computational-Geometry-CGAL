@@ -3,3 +3,6 @@ cmake_install.cmake
 CMakeFiles
 CMakeCache.txt
 instances
+build/optimal_polygon
+src/libLibsModule.a
+.vscode/settings.json
