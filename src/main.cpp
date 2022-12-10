@@ -44,6 +44,7 @@ int main(int argc, char **argv)
   double beta = 0.0;
   double ro = 0.0;
   bool elitism = false;
+  string option = EMPTY_STRING;
 
   // command line arguments parsing
   
@@ -67,11 +68,11 @@ int main(int argc, char **argv)
     }
     if ((commandLineArguments[i] == "-max") && ((i + 1) < commandLineArguments.size()))
     {
-      MAX_PARAMETER.assign(commandLineArguments[i + 1]);
+      MAX_PARAMETER = "max";
     }
     if ((commandLineArguments[i] == "-min") && ((i + 1) < commandLineArguments.size()))
     {
-      MIN_PARAMETER.assign(commandLineArguments[i + 1]);
+      MIN_PARAMETER = "min";
     }
     if ((commandLineArguments[i] == "-threshold") && ((i + 1) < commandLineArguments.size()))
     {
@@ -113,25 +114,36 @@ int main(int argc, char **argv)
     }
     
 
-  Points points = inputformat::formatFileContentsToCGALPoints(inputFile);
+  int convex_hull_area;
+  Points points = inputformat::formatFileContentsToCGALPoints(inputFile,convex_hull_area);
 
   Polygon_2 polygon;
 
+  if (MAX_PARAMETER != EMPTY_STRING) {option = "max";}
+  else {option = "min";}
+
   if (algorithm == "local_search")
   {
-    cout << "-max: " << MAX_PARAMETER << endl;
-    cout << "-threshold: " << threshold << endl;
     auto start = high_resolution_clock::now();
-    polygon = localSearch(points, MAX_PARAMETER, 2.0, "max");
+    double initial_area;
+    polygon = localSearch(points, option, threshold, initial_area);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    //polygon_print(polygon, algorithm, edge_selection, 1, duration.count());
+    polygon_print(polygon, algorithm, option, duration.count(), initial_area, points, convex_hull_area, outputFile);
   }
 
   if (algorithm == "simulated_annealing")
   {
-    simulatedAnnealing(points, "local", false, 30000);
+    auto start = high_resolution_clock::now();
+    double initial_area;
+    bool max_option; 
+    max_option = (MAX_PARAMETER == "max") ? true : false;
+    polygon = simulatedAnnealing(points, annealing_option, max_option, L, initial_area);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    polygon_print(polygon, algorithm, option, duration.count(), initial_area, points, convex_hull_area, outputFile);
   }
+  
   if (algorithm == "ant_colony")
   {
     antColony(points);

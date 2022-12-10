@@ -8,7 +8,7 @@
 
 Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &startingPoint, bool isMax);
 
-void simulatedAnnealing(Points points, string parameter, bool isMax, int L)
+Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L, double &initial_area)
 {
     // cout << "HELLO WORLD SIMULATED ANNEALING!" << endl;
     srand(time(0));
@@ -17,17 +17,16 @@ void simulatedAnnealing(Points points, string parameter, bool isMax, int L)
 
     Polygon_2 polygon = convex_hull_Algorithm(points, 3), convexHull = get_convex_hull_polygon(points);
     // cout << "Area before: " << polygon.area() << endl;
+    initial_area = polygon.area();
 
     double areaOfPolygon = polygon.area(), convexHullArea = convexHull.area();
     double energy = 0, temperature = 1, DE, R = rand() / (RAND_MAX);
     double areaDifference, newEnergy;
 
-    cout << "Area Before: " << areaOfPolygon << " Simple Polygon: " << polygon.is_simple() << " Area: " << convexHullArea << endl;
 
     // calculation -> Initial Energy
     energy = points.size() * areaOfPolygon / convexHullArea;
 
-    cout << "Energy: " << energy << endl;
 
     for (int i = 0; i < L; i++)
     {
@@ -85,7 +84,7 @@ void simulatedAnnealing(Points points, string parameter, bool isMax, int L)
             break;
     }
 
-    cout << "Area after: " << polygon.area() << " Is Simple? " << polygon.is_simple() << endl;
+    return polygon;
 }
 
 Polygon_2 localTransitionStep(Polygon_2 &polygon, double &alteredArea, int &startingPoint, bool isMax)

@@ -1,4 +1,5 @@
 #include "../include/polygonizationHelper.hpp"
+#include <fstream>
 
 using namespace std;
 
@@ -463,51 +464,55 @@ double pick_algorithm(Polygon_2 polygon)
     return ((double)insidePoints.size() + (((double)outsidePoints.size()) / ((double)2)) - 1.0);
 }
 
-void polygon_print(Polygon_2 polygon, string algorithm, int edge_selection, int initialization, int time)
+void polygon_print(Polygon_2 polygon, string algorithm, string option, int time, double initial_area,
+                                         Points points, int convex_hull_area, string filename)
 {
 
+    ofstream ouput(filename);
+    
     if (polygon.is_empty())
     {
-        cout << "ERROR: No available polygon for given data!" << endl;
+        ouput << "ERROR: No available polygon for given data!" << endl;
         return;
     }
 
-    cout << "Polygonization" << endl;
+    ouput << "Optimal Area Polygonization" << endl;
     // print edges and vertices of polygon
     for (vertexit iter = polygon.vertices_begin(); iter != polygon.vertices_end(); ++iter)
     {
-        cout << *iter << endl;
+        ouput << *iter << endl;
     }
 
     for (edgeit iter = polygon.edges_begin(); iter != polygon.edges_end(); ++iter)
     {
-        cout << *iter << endl;
+        ouput << *iter << endl;
     }
+    
+     bool IsSimple = polygon.is_simple();
+    ouput << "isSimplePolygon: " << IsSimple << endl;
 
-    cout << "Algorithm: " << algorithm << "_edge_election: " << edge_selection << endl;
-    if (initialization)
-        cout << "initialization: " << initialization << endl;
+    ouput << "Algorithm: " << algorithm << "_" << option << endl;
 
     double area = polygon.area();
 
-    bool IsSimple = polygon.is_simple();
-    bool IsConvex = polygon.is_convex();
-    bool IsClockwise = (polygon.orientation() == CGAL::CLOCKWISE);
-    double Area = abs(polygon.area());
-
-    cout << "area: " << Area << endl;
-    cout << "isSimple: " << IsSimple << endl;
-
-    int pick_area = pick_algorithm(polygon);
-    if (pick_area)
+    if (algorithm != "ant_colony")
     {
-        cout << "pick_calculated_area: " << pick_area << endl;
-        cout << "ratio: " << Area / pick_area << endl;
+        ouput << "area_initial: " << initial_area << endl;
     }
-    else
-        cout << "Pick area calculated zero!" << endl;
+    
+    ouput << "area: " << area << endl;
 
-    cout << "construction time: " << time << endl;
+    area = (int)area;
+    initial_area = (int)initial_area;
+    
+    if (algorithm != "ant_colony")
+    {
+        ouput << "ratio_initial: " << initial_area/convex_hull_area << endl;
+    }
+    
+    ouput << "ratio: " << area/convex_hull_area << endl;
+    
+    ouput << "construction time: " << time << endl;
 }
 
 Polygon_2 get_convex_hull_polygon(Points vertices)
@@ -667,4 +672,86 @@ bool checkIntersections(Polygon_2 &polygon, int randomPoint, Point_2 p, Point_2 
             }
         }
     return false;
+}
+
+// function that performs move step of V,e in local search
+void move(Polygon_2 &starting_polygon, Points &polygon_line, Segment_2 edge)
+{
+
+    vertexit starting_point_iterator, ending_point_iterator;
+    vertexit edge_index;
+
+    // calculating iterators
+    for (vertexit vertit = starting_polygon.vertices_begin(); vertit != starting_polygon.vertices_end(); ++vertit)
+    {
+        if (*vertit == polygon_line[0])
+        {
+            starting_point_iterator = vertit;
+        }
+        if (*vertit == polygon_line[polygon_line.size() - 1])
+        {
+            ending_point_iterator = next(vertit);
+        }
+    }
+
+    if ((starting_point_iterator == starting_polygon.vertices_end() - 1))
+    {
+    }
+    else if (starting_point_iterator == starting_polygon.vertices_end() - 2)
+    {
+    }
+    else
+    {
+        // swapping is performed by removing V and inserting it to e
+        starting_polygon.erase(starting_point_iterator, ending_point_iterator);
+
+        // recalculating iterators after swap
+        for (vertexit vertit = starting_polygon.vertices_begin(); vertit != starting_polygon.vertices_end(); ++vertit)
+        {
+            if (*vertit == edge[0])
+            {
+                edge_index = vertit;
+            }
+        }
+
+        starting_polygon.insert(edge_index, polygon_line.begin(), polygon_line.end());
+    }
+
+    return;
+}
+
+// function that creates k-sequences of vertices (polygon line)
+vector<Points> calculate_polygon_lines(Polygon_2 &polygon)
+{
+
+    vector<Points> polygon_lines;
+
+    for (vertexit vertit = polygon.vertices_begin(); vertit != polygon.vertices_end(); ++vertit)
+    {
+        Points polygon_line;
+
+        // edge cases
+        if (vertit == prev(prev(polygon.vertices_end())))
+        {
+            polygon_line.push_back(*vertit);
+            polygon_line.push_back(*(vertit + 1));
+            polygon_line.push_back(*(polygon.vertices_begin()));
+        }
+        else if (vertit == prev(polygon.vertices_end()))
+        {
+            polygon_line.push_back(*vertit);
+            polygon_line.push_back(*(polygon.vertices_begin()));
+            polygon_line.push_back(*next(polygon.vertices_begin()));
+        }
+        else
+        {
+            polygon_line.push_back(*vertit);
+            polygon_line.push_back(*(vertit + 1));
+            polygon_line.push_back(*(vertit + 2));
+        }
+
+        polygon_lines.push_back(polygon_line);
+    }
+
+    return polygon_lines;
 }

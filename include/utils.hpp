@@ -26,7 +26,7 @@ namespace inputformat
 {
     // String Tokenization Function. Default delimiter = tab character \t
     vector<string> tokenizeStringByDelimiter(string text, char delimiter = '\t')
-    {
+    {        
         // Vector of string to save tokens
         vector<string> tokens;
 
@@ -68,7 +68,7 @@ namespace inputformat
         return lines;
     }
 
-    vector< Point_2 > formatFileContentsToCGALPoints(string filename)
+    vector< Point_2 > formatFileContentsToCGALPoints(string filename, int &initial_area)
     {
         vector< Point_2 > points;
 
@@ -82,6 +82,18 @@ namespace inputformat
                 tokenizedString.erase(tokenizedString.begin());
 
                 points.push_back(Point_2(stoi(tokenizedString[0]), stoi(tokenizedString[1])));
+            }
+            else {
+                if (fileContent[i].find('{') != string::npos)
+                {
+                    // extract convex hull area
+                    vector<string> tokenizedString = tokenizeStringByDelimiter(fileContent[i],' ');
+                    string ar = tokenizedString[4];
+                    ar.erase(0,1);
+                    ar.erase(ar.length()-2,2);
+                    initial_area = stoi(ar);
+                    
+                }
             }
         }
 
