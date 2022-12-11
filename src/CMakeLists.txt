@@ -5,6 +5,7 @@ ADD_LIBRARY(LibsModule
     localSearch.cpp
     simulatedAnnealing.cpp
     antColony.cpp
+    antColony_helper.cpp
 )
 
 target_link_libraries(LibsModule ${CGAL_LIBS})

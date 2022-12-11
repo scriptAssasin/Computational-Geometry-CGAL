@@ -43,7 +43,7 @@ int main(int argc, char **argv)
   double alpha = 0.0;
   double beta = 0.0;
   double ro = 0.0;
-  bool elitism = false;
+  bool elitism = 0;
   string option = EMPTY_STRING;
 
   // command line arguments parsing
@@ -85,15 +85,15 @@ int main(int argc, char **argv)
    
     if ((commandLineArguments[i] == "-alpha") && ((i + 1) < commandLineArguments.size()))
     {
-      annealing_option = stoi(commandLineArguments[i + 1]);
+      alpha = stod(commandLineArguments[i + 1]);
     }
     if ((commandLineArguments[i] == "-beta") && ((i + 1) < commandLineArguments.size()))
     {
-      beta = stoi(commandLineArguments[i + 1]);
+      beta = stod(commandLineArguments[i + 1]);
     }
     if ((commandLineArguments[i] == "-ro") && ((i + 1) < commandLineArguments.size()))
     {
-      ro = stoi(commandLineArguments[i + 1]);
+      ro = stod(commandLineArguments[i + 1]);
     }
     if ((commandLineArguments[i] == "-elitism") && ((i + 1) < commandLineArguments.size()))
     {
@@ -106,8 +106,7 @@ int main(int argc, char **argv)
     || (algorithm == "local_search" && L != 0) || (algorithm != "local_search" && L == 0) 
     || (MAX_PARAMETER == EMPTY_STRING && MIN_PARAMETER == EMPTY_STRING) || 
     (threshold == 0.0 && algorithm == "local_search") || (annealing_option == EMPTY_STRING
-    && algorithm == "simulated_annealing") || ((alpha == 0.0 || beta == 0.0 || ro == 0.0 ) 
-    && algorithm == "ant_colony"))
+    && algorithm == "simulated_annealing") )
     {
       cout << "Improper arguments" << endl;
       return -1;
@@ -129,7 +128,7 @@ int main(int argc, char **argv)
     polygon = localSearch(points, option, threshold, initial_area);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    polygon_print(polygon, algorithm, option, duration.count(), initial_area, points, convex_hull_area, outputFile);
+    polygon_print(polygon, algorithm, option, duration.count(), points, convex_hull_area, outputFile, initial_area);
   }
 
   if (algorithm == "simulated_annealing")
@@ -141,12 +140,17 @@ int main(int argc, char **argv)
     polygon = simulatedAnnealing(points, annealing_option, max_option, L, initial_area);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
-    polygon_print(polygon, algorithm, option, duration.count(), initial_area, points, convex_hull_area, outputFile);
+    polygon_print(polygon, algorithm, option, duration.count(), points, convex_hull_area, outputFile, initial_area);
   }
   
   if (algorithm == "ant_colony")
   {
-    antColony(points);
+    auto start = high_resolution_clock::now();
+    double initial_area;
+    polygon = antColony(points,alpha,beta,ro,elitism,L,option);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start);
+    polygon_print(polygon, algorithm, option, duration.count(), points, convex_hull_area, outputFile);
   }
 
   return 0;

@@ -63,13 +63,12 @@ Polygon_2 incrementalAlgorithm(Points points, int edge_selection, string initial
         
         visible_edges = return_visible_edges(red_edges, polygon, *iter);
 
-        cout << "size: " << visible_edges.size() << endl;
         // select visible edge
-        Segment_2 e = select_edge_with_criteria(polygon, visible_edges, *iter, 3);
+        Segment_2 e = select_edge_with_criteria(polygon, visible_edges, *iter, edge_selection);
 
         // insert new vertex in polygon
         update_polygon(e, *iter, polygon);
-
+        
     }
     return polygon;
 }

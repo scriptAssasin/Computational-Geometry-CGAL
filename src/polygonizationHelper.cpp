@@ -188,53 +188,53 @@ Segment_2 select_edge_with_criteria(Polygon_2 polygon, vector<Segment_2> visible
     Polygon_2 old_polygon = polygon;
     switch (criteria)
     {
-    // max area
-    case 1:
-    {
-        int max_area = 0;
-        for (int i = 0; i < visible_edges.size(); i++)
+        // max area
+        case 1:
         {
-            Segment_2 current_edge = visible_edges[i];
+            int max_area = 0;
+            for (int i = 0; i < visible_edges.size(); i++)
+            {
+                Segment_2 current_edge = visible_edges[i];
 
-            update_polygon(current_edge, p, polygon);
-            int current_area = polygon.area();
-            if (current_area > max_area)
-            {
-                max_area = current_area;
-                selected_edge = current_edge;
-            }
-            polygon = old_polygon; //? does this work or does it need constructor etc
-        }
-        polygon = old_polygon;
-        break;
-    }
-    // min area
-    case 2:
-    {
-        int min_area = INT_MAX;
-        old_polygon = polygon;
-        for (int i = 0; i < visible_edges.size(); i++)
-        {
-            Segment_2 current_edge = visible_edges[i];
-            update_polygon(current_edge, p, polygon);
-            int current_area = polygon.area();
-            if (current_area < min_area)
-            {
-                min_area = current_area;
-                selected_edge = current_edge;
+                update_polygon(current_edge, p, polygon);
+                int current_area = polygon.area();
+                if (current_area > max_area)
+                {
+                    max_area = current_area;
+                    selected_edge = current_edge;
+                }
+                polygon = old_polygon; //? does this work or does it need constructor etc
             }
             polygon = old_polygon;
+            break;
         }
-        polygon = old_polygon;
-        break;
-    }
-    // random selection
-    case 3:
-    {
-        int randomIndex = rand() % visible_edges.size();
-        selected_edge = visible_edges[randomIndex];
-        break;
-    }
+        // min area
+        case 2:
+        {
+            int min_area = INT_MAX;
+            old_polygon = polygon;
+            for (int i = 0; i < visible_edges.size(); i++)
+            {
+                Segment_2 current_edge = visible_edges[i];
+                update_polygon(current_edge, p, polygon);
+                int current_area = polygon.area();
+                if (current_area < min_area)
+                {
+                    min_area = current_area;
+                    selected_edge = current_edge;
+                }
+                polygon = old_polygon;
+            }
+            polygon = old_polygon;
+            break;
+        }
+        // random selection
+        case 3:
+        {
+            int randomIndex = rand() % visible_edges.size();
+            selected_edge = visible_edges[randomIndex];
+            break;
+        }
     }
     return selected_edge;
 }
@@ -464,8 +464,8 @@ double pick_algorithm(Polygon_2 polygon)
     return ((double)insidePoints.size() + (((double)outsidePoints.size()) / ((double)2)) - 1.0);
 }
 
-void polygon_print(Polygon_2 polygon, string algorithm, string option, int time, double initial_area,
-                                         Points points, int convex_hull_area, string filename)
+void polygon_print(Polygon_2 polygon, string algorithm, string option, int time,
+                        Points points, int convex_hull_area, string filename, double initial_area)
 {
 
     ofstream ouput(filename);
@@ -502,7 +502,7 @@ void polygon_print(Polygon_2 polygon, string algorithm, string option, int time,
     
     ouput << "area: " << area << endl;
 
-    area = (int)area;
+    area = abs((int)area);
     initial_area = (int)initial_area;
     
     if (algorithm != "ant_colony")
