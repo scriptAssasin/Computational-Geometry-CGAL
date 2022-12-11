@@ -494,6 +494,7 @@ void polygon_print(Polygon_2 polygon, string algorithm, string option, int time,
     ouput << "Algorithm: " << algorithm << "_" << option << endl;
 
     double area = polygon.area();
+    area = abs(area);
 
     if (algorithm != "ant_colony")
     {
@@ -502,7 +503,6 @@ void polygon_print(Polygon_2 polygon, string algorithm, string option, int time,
     
     ouput << "area: " << area << endl;
 
-    area = abs((int)area);
     initial_area = (int)initial_area;
     
     if (algorithm != "ant_colony")
