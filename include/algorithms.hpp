@@ -1,0 +1,24 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <CGAL/Polygon_2.h>
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/convex_hull_2.h>
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef K::Point_2 Point_2;
+typedef K::Segment_2 Segment_2;
+typedef std::vector<Point_2> Points;
+typedef CGAL::Polygon_2<K> Polygon_2;
+
+using namespace std;
+
+const string MAX_PARAMETER = "MAX";
+const string MIN_PARAMETER = "MIN";
+
+Polygon_2 incrementalAlgorithm(Points points, int edge_selection, string initialization);
+Polygon_2 convex_hull_Algorithm(Points points, int edge_selection);
+Polygon_2 onion(Points points, int edge_selection);
+
+Polygon_2 localSearch(Points points, string option, double threshold, double &initial_state_area);
+Polygon_2 simulatedAnnealing(Points points, string parameter, bool isMax, int L, double &initial_area);
+Polygon_2 antColony(Points points, double alpha, double beta, double ro, bool elitism, int L, string option);
